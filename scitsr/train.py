@@ -63,11 +63,12 @@ class Trainer:
             self._print_epoch_info(epoch, 'train', loss=loss)
 
             torch.cuda.empty_cache()
-            #train_acc = self.test_epoch(epoch, self.train_dataset)
-            #self._print_epoch_info(epoch, 'train', acc=train_acc)
+            train_acc = self.test_epoch(epoch, self.train_dataset)
+            self._print_epoch_info(epoch, 'train', acc=train_acc)
 
-            test_acc = self.test_epoch(epoch, self.test_dataset)
-            self._print_epoch_info(epoch, 'test', t_acc=test_acc)
+            # commenting as we do not have labels on test data for now
+            #test_acc = self.test_epoch(epoch, self.test_dataset)
+            #self._print_epoch_info(epoch, 'test', t_acc=test_acc)
 
         print('Training finished.')
         return self.model
@@ -180,8 +181,8 @@ if __name__ == '__main__':
     train_dataset = TableDataset(
         train_path, with_cells=False, exts=["chunk", "rel"])
     node_norm, edge_norm = train_dataset.node_norm, train_dataset.edge_norm
-    infer_dataset = test_dataset = TableDataset(
-        test_path, with_cells=True, node_norm=node_norm,
+    infer_dataset = test_dataset = TableInferDataset(
+        test_path, node_norm=node_norm,
         edge_norm=edge_norm, exts=["chunk", "rel"])
     #device = 'cuda:1'
     device = "cpu"
