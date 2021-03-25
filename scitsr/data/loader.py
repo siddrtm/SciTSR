@@ -169,12 +169,18 @@ class TableDataset(Dataset):
         return ret
 
     def load_relations(self, relation_path):
+        if not os.path.exists(relation_path):
+            return []
         with open(relation_path, 'r') as f:
             lines = f.readlines()
         relations = []
         for line in lines:
-            i, j, t = line.split('\t')
-            i, j, t = int(i), int(j), int(t.split(':')[0])
+            try:
+                i, j, t = line.split('\t')
+                i, j, t = int(i), int(j), int(t.split(':')[0])
+            except:
+                print(relation_path, line)
+                raise 
             relations.append((i, j, t))
         return relations
 
@@ -185,8 +191,9 @@ class TableDataset(Dataset):
         sub_dirs = []
         for sub_name in sub_names:
             sub_dir = os.path.join(root_dir, sub_name)
-            assert os.path.isdir(sub_dir), '"%s" is not dir.' % sub_dir
-            sub_dirs.append(sub_dir)
+            if os.path.exists(sub_dir):
+                assert os.path.isdir(sub_dir), '"%s" is not dir.' % sub_dir
+                sub_dirs.append(sub_dir)
 
         paths = []
         d = os.listdir(sub_dirs[0])
@@ -196,8 +203,11 @@ class TableDataset(Dataset):
             name = os.path.splitext(file_name)[0]
             for ext in sub_names[1:]:
                 sub_path = os.path.join(root_dir, ext, name + '.' + ext)
-                assert os.path.exists(sub_path)
-                sub_paths.append(sub_path)
+                if not os.path.exists(sub_path):
+                    print("%s sub path missing" % sub_path)
+                    sub_paths.append('')
+                else:
+                    sub_paths.append(sub_path)
             paths.append(sub_paths)
         
         return paths
